@@ -7,13 +7,25 @@ version = "1.0.0-SNAPSHOT"
 
 plugins {
     kotlin("jvm") version "1.2.0"
-    id("java-gradle-plugin")
+    `java-gradle-plugin`
+    `kotlin-dsl`
+    `maven-publish`
 }
 
 repositories {
     jcenter()
     mavenCentral()
 }
+
+gradlePlugin {
+    (plugins) {
+        "myPlugin" {
+            id = "my-plugin"
+            implementationClass = "plugin.MyPlugin"
+        }
+    }
+}
+
 dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(
@@ -28,5 +40,10 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         kotlinOptions.jvmTarget = "1.8"
+    }
+}
+publishing {
+    repositories {
+        maven(url = "build/lib")
     }
 }
