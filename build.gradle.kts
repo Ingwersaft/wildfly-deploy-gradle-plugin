@@ -14,7 +14,9 @@ repositories {
 }
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-
+    compile(
+            files("jboss-cli-client.jar")
+    )
     testCompile(kotlin("test"))
     testCompile(kotlin("test-junit"))
 }
