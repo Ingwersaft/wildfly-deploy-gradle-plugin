@@ -12,9 +12,9 @@ fun main(args: Array<String>) {
     val serverstate = response.get("result")
     println("Current server state: " + serverstate)
 
-    val response1 = cli.cmd("deploy --force /path/to/war-1.0.0-SNAPSHOT.war")
-            .response
-    println(response1)
+    val deploySuccess = cli.cmd("deploy --force /home/mauer/workspace/uploadreceiver/build/libs/UploadReceiver-1.0.0-SNAPSHOT.war").isSuccess
+    println("deploySuccess=$deploySuccess")
+//    println("info:=" + cli.cmd("deployment-info").response + " infoOUT")
 
     cli.disconnect()
 }
