@@ -28,10 +28,7 @@ gradlePlugin {
 dependencies {
     compile(kotlin("stdlib-jdk8", "1.2.0"))
     compile(kotlin("reflect", "1.2.0"))
-    compile("org.jboss.as","jboss-as-cli","7.2.0.Final")
-//    compile(
-//            files("jboss-cli-client.jar")
-//    )
+    compile("org.jboss.as", "jboss-as-cli", "7.2.0.Final")
 
     compileOnly(gradleApi())
     testCompile(kotlin("test"))
@@ -44,6 +41,7 @@ tasks.withType<KotlinCompile> {
 }
 publishing {
     repositories {
+        mavenLocal()
         maven(url = "build/lib")
     }
 }
