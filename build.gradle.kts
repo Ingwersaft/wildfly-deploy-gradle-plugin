@@ -2,8 +2,7 @@ import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.mkring.wildlydeplyplugin"
-version = "1.0.0-SNAPSHOT"
-
+version = "1.0.0"
 
 plugins {
     kotlin("jvm") version "1.2.0"
@@ -19,19 +18,20 @@ repositories {
 
 gradlePlugin {
     (plugins) {
-        "myPlugin" {
-            id = "my-plugin"
-            implementationClass = "plugin.MyPlugin"
+        "deploy-wildfly-plugin" {
+            id = "deploy-wildfly-plugin"
+            implementationClass = "com.mkring.wildlydeplyplugin.DeployWildflyPlugin"
         }
     }
 }
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
-    compile(
-            // todo replaye with maven location
-            files("jboss-cli-client.jar")
-    )
+    compile(kotlin("stdlib-jdk8", "1.2.0"))
+    compile(kotlin("reflect", "1.2.0"))
+    compile("org.jboss.as","jboss-as-cli","7.2.0.Final")
+//    compile(
+//            files("jboss-cli-client.jar")
+//    )
 
     compileOnly(gradleApi())
     testCompile(kotlin("test"))
