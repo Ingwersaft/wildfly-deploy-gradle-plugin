@@ -3,7 +3,7 @@ Gradle Plugin for deploying Files to Wildfly
 
 :exclamation: Plugin needs some tests for productive use, keep in mind :)
 
-# basic example
+# basic example (gradle kotlin-dsl)
 Add deploy-wildfly-plugin to plugins:
 ```kotlin
 plugins {
