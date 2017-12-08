@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 open class DeployWildflyPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -20,7 +19,7 @@ open class DeployWildflyPlugin : Plugin<Project> {
 }
 
 open class DeployWildplyPluginExtension {
-    var file: File? = null
+    var file: String? = null
     var host: String = "localhost"
     var port: Int = 9090
     var user: String? = null
@@ -45,7 +44,7 @@ open class DeployWildflyTask : DefaultTask() {
                 return
             }
             with(extension) {
-                println("deployWildfly: going to deploy ${file?.absolutePath} to $host:$port")
+                println("deployWildfly: going to deploy $file to $host:$port")
             }
             FileDeployer(extension).deploy()
         }
