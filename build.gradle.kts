@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.mkring.wildlydeplyplugin"
-version = "0.1.4"
+version = "0.1.5"
 
 val kotlinVersion: String by extra { "1.2.0" }
 
@@ -31,7 +31,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "http://www.gradle.org/"
+    website = "https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin"
     vcsUrl = "https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin"
     description = "Deploys files to a Wildfly und reloads it afterwards"
     tags = listOf("deploy", "wildfly", "jboss-as-cli")
