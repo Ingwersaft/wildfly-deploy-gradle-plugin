@@ -37,3 +37,13 @@ task("deployDev") {
     dependsOn("build", "deployWildfly")
 }
 ```
+
+You can also deactivate force and/or reload:
+```kotlin
+deployWildfly {
+        // [...]
+        reload = false
+        force = false
+        // [...]
+}
+```
