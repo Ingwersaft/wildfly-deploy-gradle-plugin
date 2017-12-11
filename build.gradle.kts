@@ -2,6 +2,7 @@ import org.gradle.kotlin.dsl.`kotlin-dsl`
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformJvmPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.mkring.wildlydeplyplugin"
@@ -14,7 +15,7 @@ plugins {
     `maven-publish`
     id("com.gradle.plugin-publish").version("0.9.9")
 }
-val kotlinVersion: String by extra { "1.2.0" }
+val kotlinVersion = plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
 
 repositories {
     jcenter()
