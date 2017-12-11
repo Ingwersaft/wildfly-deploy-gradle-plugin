@@ -12,15 +12,22 @@ open class DeployWildflyPlugin : Plugin<Project> {
     }
 }
 
-open class DeployWildflyTask(
-        @Input var file: String? = null,
-        @Input var host: String = "localhost",
-        @Input var port: Int = 9090,
-        @Input var user: String? = null,
-        @Input var password: String? = null,
-        @Input var reload: Boolean = true,
-        @Input var force: Boolean = true
-) : DefaultTask() {
+open class DeployWildflyTask : DefaultTask() {
+
+    @Input
+    var file: String? = null
+    @Input
+    var host: String = "localhost"
+    @Input
+    var port: Int = 9090
+    @Input
+    var user: String? = null
+    @Input
+    var password: String? = null
+    @Input
+    var reload: Boolean = true
+    @Input
+    var force: Boolean = true
 
     init {
         group = "help"
@@ -32,7 +39,7 @@ open class DeployWildflyTask(
     @TaskAction
     fun deployWildfly() {
         if (file == null || user == null || password == null) {
-            println("missing configuration")
+            println("DeployWildflyTask: missing configuration")
             return
         }
         println("deployWildfly: going to deploy $file to $host:$port")
