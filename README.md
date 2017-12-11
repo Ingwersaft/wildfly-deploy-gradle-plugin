@@ -7,40 +7,36 @@ Gradle Plugin for deploying Files to Wildfly
 Add deploy-wildfly-plugin to plugins:
 ```kotlin
 plugins {
-    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.1.4"
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "<version>"
 }
 ```
-Setup target wildfly:
+Setup task with configuration:
 ```kotlin
-deployWildfly {
-        host = "localhost"
-        port = 9090
-        user = "mgmt_user"
-        password = "mgmt_password"
-        // filepath, here a war example
-        file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
+task("deploy", DeployWildflyTask::class) {
+    host = "localhost"
+    port = 9090
+    user = "mgmt_user"
+    password = "mgmt_password"
+    // filepath, here a war example
+    file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
 }
 ```
 
-Trigger plugin: `./gradlew build deployWildfly`
+Trigger task: `./gradlew deploy`
 
-If you wan't to deploy to multiple you can create tasks like this:
+If you wan't to deploy to multiple targets you can create multiple tasks like this:
 ```kotlin
 task("deployDev") {
-    deployWildfly {
-        host = "<dev_host>"
-        port = 9090
-        user = "mgmt_user"
-        password = "mgmt_password"
-        file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
-    }
-    dependsOn("build", "deployWildfly")
+    //config dev
+}
+task("deployQa") {
+    //config qa
 }
 ```
 
 You can also deactivate force and/or reload:
 ```kotlin
-deployWildfly {
+task("deploy") {
         // [...]
         reload = false
         force = false
