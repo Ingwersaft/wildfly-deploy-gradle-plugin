@@ -1,12 +1,11 @@
 import org.gradle.kotlin.dsl.`kotlin-dsl`
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.kotlin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformJvmPlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.mkring.wildlydeplyplugin"
 version = "0.1.5"
-
-val kotlinVersion: String by extra { "1.2.0" }
 
 plugins {
     kotlin("jvm") version "1.2.0"
@@ -15,6 +14,7 @@ plugins {
     `maven-publish`
     id("com.gradle.plugin-publish").version("0.9.9")
 }
+val kotlinVersion: String by extra { "1.2.0" }
 
 repositories {
     jcenter()
@@ -46,7 +46,7 @@ pluginBundle {
 
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlinVersion))
-    compile(kotlin("reflect", kotlinVersion))
+    runtime(kotlin("reflect", kotlinVersion))
     compile("org.wildfly", "wildfly-cli", "8.2.1.Final")
 
     compileOnly(gradleApi())
@@ -55,6 +55,7 @@ dependencies {
 
     testCompile(kotlin("test", kotlinVersion))
     testCompile(kotlin("test-junit", kotlinVersion))
+
 }
 tasks.withType<KotlinCompile> {
     kotlinOptions {

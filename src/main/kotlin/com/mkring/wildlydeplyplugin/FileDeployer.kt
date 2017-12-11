@@ -7,41 +7,40 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 
-class FileDeployer(val extension: DeployWildplyPluginExtension) {
+class FileDeployer(val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
+                   val reload: Boolean, val force: Boolean) {
     fun deploy() {
-        with(extension) {
-            checkHostDns()
-            checkSocket()
-            CLI.newInstance().let { cli ->
-                println("wildfly connect with $user on $host:$port")
-                cli.connect(host, port, user, password?.toCharArray())
-                val force = if (force) {
-                    "--force"
-                } else {
-                    ""
-                }
-                println("connected successfully")
-                println("given $file existent: ${File(file).isFile}")
-                val deploySuccess = cli.cmd("deploy $force $file").isSuccess
-                println("deploy success: $deploySuccess")
-                if (reload) {
-                    try {
-                        val reloadSuccess = cli.cmd("reload").isSuccess
-                        println("reload success: $reloadSuccess")
-                    } catch (e: CommandLineException) {
-                        println("looks like reload timed out: ${e.message}")
-                    }
-                }
-                cli.disconnect()
+        checkHostDns()
+        checkSocket()
+        CLI.newInstance().let { cli ->
+            println("wildfly connect with $user on $host:$port")
+            cli.connect(host, port, user, password?.toCharArray())
+            val force = if (force) {
+                "--force"
+            } else {
+                ""
             }
+            println("connected successfully")
+            println("given $file existent: ${File(file).isFile}")
+            val deploySuccess = cli.cmd("deploy $force $file").isSuccess
+            println("deploy success: $deploySuccess")
+            if (reload) {
+                try {
+                    val reloadSuccess = cli.cmd("reload").isSuccess
+                    println("reload success: $reloadSuccess")
+                } catch (e: CommandLineException) {
+                    println("looks like reload timed out: ${e.message}")
+                }
+            }
+            cli.disconnect()
         }
     }
 
-    private fun DeployWildplyPluginExtension.checkHostDns() {
+    private fun checkHostDns() {
         println("$host DNS: ${InetAddress.getAllByName(host).joinToString(";")}")
     }
 
-    private fun DeployWildplyPluginExtension.checkSocket() {
+    private fun checkSocket() {
         Socket().use {
             try {
                 it.connect(InetSocketAddress(host, port), 2000)
