@@ -49,6 +49,7 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
         }
 
         if (awaitReload) {
+            println("going to block until the reload finished...\n")
             val postReloadDeploymentInfoPrettyPrint = blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.responsePrettyPrint()
             println("POST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
         }
@@ -57,15 +58,6 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
 
     private fun connect(cli: CLI) {
         cli.connect(host, port, user, password?.toCharArray())
-    }
-
-    private fun awaitReload(cli: CLI) {
-        try {
-            val deploymentInfoResponseText = cli.cmd("deployment-info").response.asString()
-            println("deployment info after reload:\n$deploymentInfoResponseText")
-        } catch (e: CommandLineException) {
-            println("looks like reload timed out: ${e.message}")
-        }
     }
 
     private fun checkHostDns() {
@@ -95,14 +87,12 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
             val cli = CLI.newInstance()
             try {
                 connect(cli)
-                println("trying")
                 val cmd = cli.cmd(s)
                 if (cmd.isSuccess.not()) {
                     throw IllegalStateException("no success")
                 }
                 return cmd
             } catch (e: Exception) {
-                System.err.println(e.message)
                 Thread.sleep(500)
                 continue
             } finally {
@@ -112,7 +102,7 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
                 }
             }
         }
-        throw IllegalStateException("cant reconnect after reload after $i $unit")
+        throw IllegalStateException("can't reconnect after wildfly reload after $i $unit")
     }
 
     private fun ModelNode.responsePrettyPrint() = get("result").asList().joinToString("\n") {
