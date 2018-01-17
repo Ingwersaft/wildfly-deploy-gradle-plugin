@@ -2,10 +2,13 @@ package com.mkring.wildlydeplyplugin
 
 import org.jboss.`as`.cli.CommandLineException
 import org.jboss.`as`.cli.scriptsupport.CLI
+import org.jboss.dmr.ModelNode
 import java.io.File
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class FileDeployer(val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
                    val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean) {
@@ -14,7 +17,7 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
         checkSocket()
         CLI.newInstance().let { cli ->
             println("wildfly connect with $user on $host:$port")
-            cli.connect(host, port, user, password?.toCharArray())
+            connect(cli)
             val force = if (force) {
                 "--force"
             } else {
@@ -42,15 +45,26 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
                     println("looks like reload timed out: ${e.message}")
                 }
             }
-            if (awaitReload) {
-                try {
-                    val deploymentInfoResponseText = cli.cmd("deployment-info").response.asString()
-                    println("deployment info after reload:\n$deploymentInfoResponseText")
-                } catch (e: CommandLineException) {
-                    println("looks like reload timed out: ${e.message}")
-                }
-            }
             cli.disconnect()
+        }
+
+        if (awaitReload) {
+            val postReloadDeploymentInfoPrettyPrint = blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.responsePrettyPrint()
+            println("POST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
+        }
+
+    }
+
+    private fun connect(cli: CLI) {
+        cli.connect(host, port, user, password?.toCharArray())
+    }
+
+    private fun awaitReload(cli: CLI) {
+        try {
+            val deploymentInfoResponseText = cli.cmd("deployment-info").response.asString()
+            println("deployment info after reload:\n$deploymentInfoResponseText")
+        } catch (e: CommandLineException) {
+            println("looks like reload timed out: ${e.message}")
         }
     }
 
@@ -71,4 +85,43 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
             }
         }
     }
+
+    /**
+     * hacky as hell but works
+     */
+    private fun blockingCmd(s: String, i: Long, unit: ChronoUnit): CLI.Result {
+        val end = LocalDateTime.now().plus(i, unit)
+        while (LocalDateTime.now().isBefore(end)) {
+            val cli = CLI.newInstance()
+            try {
+                connect(cli)
+                println("trying")
+                val cmd = cli.cmd(s)
+                if (cmd.isSuccess.not()) {
+                    throw IllegalStateException("no success")
+                }
+                return cmd
+            } catch (e: Exception) {
+                System.err.println(e.message)
+                Thread.sleep(500)
+                continue
+            } finally {
+                try {
+                    cli.disconnect()
+                } catch (e: Exception) {
+                }
+            }
+        }
+        throw IllegalStateException("cant reconnect after reload after $i $unit")
+    }
+
+    private fun ModelNode.responsePrettyPrint() = get("result").asList().joinToString("\n") {
+        "${it.asProperty().name}: " +
+                "${it.getParam("enabled")}; " +
+                "${it.getParam("runtime-name")}; " +
+                "${it.getParam("status")}; " +
+                it.getParam("enabled-timestamp")
+    }
+
+    private fun ModelNode.getParam(s: String) = "$s: ${get(0).get(s)}"
 }
