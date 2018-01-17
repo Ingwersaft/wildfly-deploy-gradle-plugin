@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.mkring.wildlydeplyplugin"
-version = "0.1.7"
+version = "0.2.0"
 
 plugins {
     kotlin("jvm") version "1.2.0"
