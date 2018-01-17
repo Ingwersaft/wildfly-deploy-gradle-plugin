@@ -8,7 +8,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 
 class FileDeployer(val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
-                   val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?) {
+                   val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean) {
     fun deploy() {
         checkHostDns()
         checkSocket()
@@ -38,6 +38,14 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
                 try {
                     val reloadSuccess = cli.cmd("reload").isSuccess
                     println("reload success: $reloadSuccess")
+                } catch (e: CommandLineException) {
+                    println("looks like reload timed out: ${e.message}")
+                }
+            }
+            if (awaitReload) {
+                try {
+                    val deploymentInfoResponseText = cli.cmd("deployment-info").response.asString()
+                    println("deployment info after reload:\n$deploymentInfoResponseText")
                 } catch (e: CommandLineException) {
                     println("looks like reload timed out: ${e.message}")
                 }
