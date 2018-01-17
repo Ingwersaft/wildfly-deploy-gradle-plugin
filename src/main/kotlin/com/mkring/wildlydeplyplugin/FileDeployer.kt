@@ -21,12 +21,12 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
                 ""
             }
             val name = if (name != null) {
-                "--name $name"
+                "--name=$name"
             } else {
                 ""
             }
             val runtimeName = if (runtimeName != null) {
-                "--runtime-name $runtimeName"
+                "--runtime-name=$runtimeName"
             } else {
                 ""
             }
