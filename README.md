@@ -17,6 +17,8 @@ task("deploy", DeployWildflyTask::class) {
     port = 9090
     user = "mgmt_user"
     password = "mgmt_password"
+    deploymentName = project.name                //cli: --name=$runtimeName
+    runtimeName = "${project.name}-$version.war" //cli: --runtime-name=$runtimeName
     // filepath, here a war example
     file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
 }
