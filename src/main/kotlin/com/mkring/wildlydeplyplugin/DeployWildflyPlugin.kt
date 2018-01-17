@@ -16,6 +16,12 @@ open class DeployWildflyTask : DefaultTask() {
 
     @Input
     var file: String? = null
+
+    @Input
+    var deploymentName: String? = null
+    @Input
+    var runtimeName: String? = null
+
     @Input
     var host: String = "localhost"
     @Input
@@ -43,6 +49,6 @@ open class DeployWildflyTask : DefaultTask() {
             return
         }
         println("deployWildfly: going to deploy $file to $host:$port")
-        FileDeployer(file, host, port, user, password, reload, force).deploy()
+        FileDeployer(file, host, port, user, password, reload, force, deploymentName, runtimeName).deploy()
     }
 }

@@ -8,7 +8,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 
 class FileDeployer(val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
-                   val reload: Boolean, val force: Boolean) {
+                   val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?) {
     fun deploy() {
         checkHostDns()
         checkSocket()
@@ -20,9 +20,19 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
             } else {
                 ""
             }
+            val name = if (name != null) {
+                "--name $name"
+            } else {
+                ""
+            }
+            val runtimeName = if (runtimeName != null) {
+                "--runtime-name $runtimeName"
+            } else {
+                ""
+            }
             println("connected successfully")
             println("given $file existent: ${File(file).isFile}")
-            val deploySuccess = cli.cmd("deploy $force $file").isSuccess
+            val deploySuccess = cli.cmd("deploy $force $name $runtimeName $file").isSuccess
             println("deploy success: $deploySuccess")
             if (reload) {
                 try {
