@@ -10,9 +10,13 @@ import java.net.Socket
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class FileDeployer(val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
-                   val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean) {
+class FileDeployer(
+    val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
+    val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean
+) {
+
     fun deploy() {
+        println("deploy(): " + this)
         checkHostDns()
         checkSocket()
         CLI.newInstance().let { cli ->
@@ -50,7 +54,8 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
 
         if (awaitReload) {
             println("going to block until the reload finished...\n")
-            val postReloadDeploymentInfoPrettyPrint = blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.responsePrettyPrint()
+            val postReloadDeploymentInfoPrettyPrint =
+                blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.responsePrettyPrint()
             println("POST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
         }
 
@@ -114,4 +119,10 @@ class FileDeployer(val file: String?, val host: String, val port: Int, val user:
     }
 
     private fun ModelNode.getParam(s: String) = "$s: ${get(0).get(s)}"
+
+    override fun toString(): String {
+        return "FileDeployer(file=$file, host='$host', port=$port, user=$user, reload=$reload, force=$force, name=$name, runtimeName=$runtimeName, awaitReload=$awaitReload)"
+    }
+
+
 }
