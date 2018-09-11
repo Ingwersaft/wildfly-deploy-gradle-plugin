@@ -16,4 +16,4 @@ gradle-app.setting
 /out/
 *.iml
 **/Debug.kt
-/src/main/kotlin/com/mkring/wildlydeplyplugin/DeleteMe.kt
+**/DeleteMe.kt

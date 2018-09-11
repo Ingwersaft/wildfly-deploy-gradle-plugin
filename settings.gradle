@@ -1,2 +1,3 @@
 rootProject.name = 'wildfly-deploy-gradle-plugin'
 rootProject.buildFileName = 'build.gradle.kts'
+enableFeaturePreview('STABLE_PUBLISHING')

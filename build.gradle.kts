@@ -4,16 +4,16 @@ import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformJvmPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 
 group = "com.mkring.wildlydeplyplugin"
-version = "0.2.5"
+version = "0.2.6"
 
 plugins {
-    kotlin("jvm") version "1.2.0"
+    kotlin("jvm") version "1.2.61"
     `java-gradle-plugin`
-    `kotlin-dsl`
     `maven-publish`
-    id("com.gradle.plugin-publish").version("0.9.9")
+    id("com.gradle.plugin-publish").version("0.10.0")
 }
 val kotlinVersion = plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
 
@@ -23,26 +23,21 @@ repositories {
 }
 
 gradlePlugin {
-    (plugins) {
-        "deploy-wildfly-plugin" {
+    plugins {
+        register("deploy-wildfly-plugin") {
             id = "com.mkring.wildlydeplyplugin.deploy-wildfly-plugin"
             implementationClass = "com.mkring.wildlydeplyplugin.DeployWildflyPlugin"
+            displayName = "Wildfly Deploy Gradle Plugin"
         }
     }
 }
+
 
 pluginBundle {
     website = "https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin"
     vcsUrl = "https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin"
     description = "Deploys files to a Wildfly und reloads it afterwards"
     tags = listOf("deploy", "wildfly", "jboss-as-cli")
-
-    (plugins){
-        "deploy-wildfly-plugin" {
-            id = "com.mkring.wildlydeplyplugin.deploy-wildfly-plugin"
-            displayName = "Wildfly Deploy Gradle Plugin"
-        }
-    }
 }
 
 dependencies {
