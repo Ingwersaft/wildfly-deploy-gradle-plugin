@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 
 group = "com.mkring.wildlydeplyplugin"
-version = "0.2.6"
+version = "0.2.6-jboss7"
 
 plugins {
     kotlin("jvm") version "1.2.61"
@@ -43,7 +43,7 @@ pluginBundle {
 dependencies {
     compile(kotlin("stdlib-jdk8", kotlinVersion))
     runtime(kotlin("reflect", kotlinVersion))
-    compile("org.wildfly", "wildfly-cli", "8.2.1.Final")
+    compile("org.jboss.as", "jboss-as-cli", "7.2.0.Final")
 
     compileOnly(gradleApi())
 
