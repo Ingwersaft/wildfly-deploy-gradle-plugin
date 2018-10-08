@@ -45,3 +45,8 @@ task("deploy") {
         // [...]
 }
 ```
+
+You can also undeploy an existing deployment with the identical name beforehand
+```kotlin
+undeployBeforehand = true
+```
