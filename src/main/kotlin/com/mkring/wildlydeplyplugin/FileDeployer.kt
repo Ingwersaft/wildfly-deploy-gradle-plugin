@@ -11,9 +11,19 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 class FileDeployer(
-    val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
-    val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean,
-    val undeployBeforehand: Boolean
+    private val file: String?,
+    private val host: String,
+    private val port: Int,
+    private val user: String?,
+    private val password: String?,
+    private val reload: Boolean,
+    private val force: Boolean,
+    private val name: String?,
+    private val runtimeName: String?,
+    private val awaitReload: Boolean,
+    private val undeployBeforehand: Boolean,
+    private val restart: Boolean,
+    private val awaitRestart: Boolean
 ) {
     fun deploy() {
         println("deploy(): " + this)
@@ -63,23 +73,40 @@ class FileDeployer(
 
             if (reload) {
                 try {
+                    println("going to reload wildfly")
                     val reloadSuccess = cli.cmd("reload").isSuccess
                     println("reload success: $reloadSuccess")
                 } catch (e: CommandLineException) {
                     println("looks like reload timed out: ${e.message}")
                 }
             }
+            if (restart) {
+                try {
+                    println("going to restart wildfly")
+                    val restartSuccess = cli.cmd("shutdown --restart=true").isSuccess
+                    println("restart success: $restartSuccess")
+                } catch (e: CommandLineException) {
+                    println("looks like restart timed out: ${e.message}")
+                }
+            }
             cli.disconnect()
         }
 
         if (awaitReload) {
-            println("going to block until the reload finished...\n")
-            Thread.sleep(1000)
-            val postReloadDeploymentInfoPrettyPrint =
-                blockingCmd("deployment-info", 1, ChronoUnit.MINUTES).response.responsePrettyPrint()
-            println("\n\nPOST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
+            blockTillCliIsBack()
+        }
+        if (awaitRestart) {
+            blockTillCliIsBack()
         }
 
+    }
+
+    fun blockTillCliIsBack() {
+        println("going to block until the reload/restart finished...\n")
+        Thread.sleep(1000)
+        val postReloadDeploymentInfoPrettyPrint =
+            blockingCmd("deployment-info", 1, ChronoUnit.MINUTES).response.responsePrettyPrint()
+        println("\n\nPOST reload/restart deployment info:\n$postReloadDeploymentInfoPrettyPrint")
     }
 
     private fun enableDeploymentIfNecessary(name: String) {
@@ -164,6 +191,5 @@ class FileDeployer(
     override fun toString(): String {
         return "FileDeployer(file=$file, host='$host', port=$port, user=$user, reload=$reload, force=$force, name=$name, runtimeName=$runtimeName, awaitReload=$awaitReload)"
     }
-
 
 }
