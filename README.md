@@ -50,3 +50,10 @@ You can also undeploy an existing deployment with the identical name beforehand
 ```kotlin
 undeployBeforehand = true
 ```
+
+You can also restart the wildfly after the deployment (and await it), analogous to the reload mechanism
+```kotlin
+    reload = false // default for reload is true, so deactivate it first
+    restart = true
+    awaitRestart = true 
+```
