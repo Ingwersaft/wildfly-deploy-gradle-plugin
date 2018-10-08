@@ -14,7 +14,6 @@ class FileDeployer(
     val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
     val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean
 ) {
-
     fun deploy() {
         println("deploy(): " + this)
         checkHostDns()
@@ -41,6 +40,9 @@ class FileDeployer(
             println("given $file existent: ${File(file).isFile}")
             val deploySuccess = cli.cmd("deploy $force $name $runtimeName $file").isSuccess
             println("deploy success: $deploySuccess")
+
+            enableDeploymentIfNecessary(name)
+
             if (reload) {
                 try {
                     val reloadSuccess = cli.cmd("reload").isSuccess
@@ -59,6 +61,23 @@ class FileDeployer(
             println("POST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
         }
 
+    }
+
+    private fun enableDeploymentIfNecessary(name: String) {
+        println("\nchecking if deployment is enabled...")
+        val deploymentEnabled =
+            blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.get("result").asList().map {
+                it.asProperty().name to it.getParam("enabled").removePrefix("enabled: ")
+            }.firstOrNull {
+                it.first == name.removePrefix("--name=")
+            }?.second?.toBoolean()
+
+        if (deploymentEnabled == false) {
+            println("not enabled! going to enable now!")
+            blockingCmd("deploy $name", 2, ChronoUnit.MINUTES).response.also {
+                println("enable response: $it\n")
+            }
+        }
     }
 
     private fun connect(cli: CLI) {
