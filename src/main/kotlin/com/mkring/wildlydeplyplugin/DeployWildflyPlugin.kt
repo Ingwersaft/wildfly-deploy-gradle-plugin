@@ -38,6 +38,9 @@ open class DeployWildflyTask : DefaultTask() {
     @Input
     var awaitReload: Boolean = false
 
+    @Input
+    var undeployBeforehand: Boolean = false
+
     init {
         group = "help"
         description = "Deploys files to a Wildfly und reloads it afterwards"
@@ -52,6 +55,23 @@ open class DeployWildflyTask : DefaultTask() {
             return
         }
         println("deployWildfly: going to deploy $file to $host:$port")
-        FileDeployer(file, host, port, user, password, reload, force, deploymentName, runtimeName, awaitReload).deploy()
+        try {
+            FileDeployer(
+                file,
+                host,
+                port,
+                user,
+                password,
+                reload,
+                force,
+                deploymentName,
+                runtimeName,
+                awaitReload,
+                undeployBeforehand
+            ).deploy()
+        } catch (e: Exception) {
+            println("deployWildfly task failed: ${e.message}")
+            e.printStackTrace()
+        }
     }
 }
