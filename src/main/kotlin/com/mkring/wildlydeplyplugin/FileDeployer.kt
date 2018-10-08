@@ -12,7 +12,8 @@ import java.time.temporal.ChronoUnit
 
 class FileDeployer(
     val file: String?, val host: String, val port: Int, val user: String?, val password: String?,
-    val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean
+    val reload: Boolean, val force: Boolean, val name: String?, val runtimeName: String?, val awaitReload: Boolean,
+    val undeployBeforehand: Boolean
 ) {
     fun deploy() {
         println("deploy(): " + this)
@@ -37,7 +38,24 @@ class FileDeployer(
                 ""
             }
             println("connected successfully")
-            println("given $file existent: ${File(file).isFile}")
+            val deploymentExists = File(file).isFile
+            println("given $file existent: $deploymentExists")
+            if (deploymentExists.not()) throw IllegalStateException("couldn't find given deployment")
+
+            if (undeployBeforehand) {
+                println("\nundeploying existing deployment with same name if preset...")
+                val shouldUndeploy =
+                    blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.get("result").asList()
+                        .any { it.asProperty().name == name.removePrefix("--name=") }
+                println("shouldUndeploy=$shouldUndeploy")
+                if (shouldUndeploy) {
+                    blockingCmd("undeploy $name", 2, ChronoUnit.MINUTES).response.also {
+                        println("undeploy response: $it\n")
+                    }
+                }
+            }
+
+            // deploy
             val deploySuccess = cli.cmd("deploy $force $name $runtimeName $file").isSuccess
             println("deploy success: $deploySuccess")
 
@@ -56,9 +74,10 @@ class FileDeployer(
 
         if (awaitReload) {
             println("going to block until the reload finished...\n")
+            Thread.sleep(1000)
             val postReloadDeploymentInfoPrettyPrint =
-                blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.responsePrettyPrint()
-            println("POST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
+                blockingCmd("deployment-info", 1, ChronoUnit.MINUTES).response.responsePrettyPrint()
+            println("\n\nPOST reload deployment info:\n$postReloadDeploymentInfoPrettyPrint")
         }
 
     }
@@ -117,12 +136,15 @@ class FileDeployer(
                 }
                 return cmd
             } catch (e: Exception) {
+                println("connect + cmd exception: ${e::class.java.simpleName}:${e.message}")
                 Thread.sleep(500)
                 continue
             } finally {
                 try {
                     cli.disconnect()
                 } catch (e: Exception) {
+                    println("disconnect exception: ${e::class.java.simpleName}:${e.message}")
+                    throw e
                 }
             }
         }
