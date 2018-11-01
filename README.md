@@ -57,3 +57,70 @@ You can also restart the wildfly after the deployment (and await it), analogous 
     restart = true
     awaitRestart = true 
 ```
+
+# gradle groovy example
+```
+import com.mkring.wildlydeplyplugin.DeployWildflyTask
+
+plugins {
+    id("java")
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.7"
+}
+
+group = "x.y"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile("junit:junit:4.12")
+}
+
+task deploy(type: DeployWildflyTask) {
+    host = "localhost"
+    port = 9090
+    user = "mgmt_user"
+    password = "mgmt_password"
+    deploymentName = project.name
+    runtimeName = project.name + "-" + version + ".war"
+    // filepath, here a war example
+    file = file("${buildDir}/libs/${project.name}-${version}.war")
+}
+```
+# gradle kotlin example
+```
+import com.mkring.wildlydeplyplugin.DeployWildflyTask
+
+plugins {
+    java
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.7"
+}
+
+group = "x.y"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile("junit", "junit", "4.12")
+}
+
+configure<JavaPluginConvention> {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+task("deploy", DeployWildflyTask::class) {
+    host = "localhost"
+    port = 9090
+    user = "mgmt_user"
+    password = "mgmt_password"
+    deploymentName = project.name                //cli: --name=$runtimeName
+    runtimeName = "${project.name}-$version.war" //cli: --runtime-name=$runtimeName
+    // filepath, here a war example
+    file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
+}
+```
