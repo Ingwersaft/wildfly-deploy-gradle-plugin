@@ -133,7 +133,7 @@ The ExecuteWildflyTask let's you execute commands on the target cli
 import com.mkring.wildlydeplyplugin.ExecuteWildflyTask
 
 [...]
-task("wildflyExecute", ExecuteWildflyTask::class) {
+task wildflyExecute(type: ExecuteWildflyTask) {
     host = "127.0.0.1"
     port = 9990
     user = "testuser"
