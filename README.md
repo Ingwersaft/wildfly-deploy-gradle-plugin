@@ -3,7 +3,7 @@ Gradle Plugin for deploying Files to Wildfly
 
 :exclamation: Plugin needs some tests for productive use, keep in mind :)
 
-# basic example (gradle kotlin-dsl)
+## basic example (gradle kotlin-dsl)
 Add deploy-wildfly-plugin to plugins:
 ```kotlin
 plugins {
@@ -58,7 +58,7 @@ You can also restart the wildfly after the deployment (and await it), analogous 
     awaitRestart = true 
 ```
 
-# gradle groovy example
+## gradle groovy example
 ```
 import com.mkring.wildlydeplyplugin.DeployWildflyTask
 
@@ -89,7 +89,7 @@ task deploy(type: DeployWildflyTask) {
     file = file("${buildDir}/libs/${project.name}-${version}.war")
 }
 ```
-# gradle kotlin example
+## gradle kotlin example
 ```
 import com.mkring.wildlydeplyplugin.DeployWildflyTask
 
@@ -123,4 +123,36 @@ task("deploy", DeployWildflyTask::class) {
     // filepath, here a war example
     file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
 }
+```
+
+# ExecuteWildflyTask - execute commands on the cli
+The ExecuteWildflyTask let's you execute commands on the target cli
+
+## groovy example
+```
+import com.mkring.wildlydeplyplugin.ExecuteWildflyTask
+
+[...]
+task("wildflyExecute", ExecuteWildflyTask::class) {
+    host = "127.0.0.1"
+    port = 9990
+    user = "testuser"
+    password = "123"
+    commands = ["deployment-info", "deployment-info"]
+}
+```
+
+## kotlin example
+```
+import com.mkring.wildlydeplyplugin.ExecuteWildflyTask
+
+[...]
+task("wildflyExecute", ExecuteWildflyTask::class) {
+    host = "127.0.0.1"
+    port = 9990
+    user = "testuser"
+    password = "123"
+    commands = listOf("deployment-info", "deployment-info")
+}
+
 ```
