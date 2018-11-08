@@ -30,6 +30,7 @@ open class DeployWildflyTask : DefaultTask() {
     var user: String? = null
     @Input
     var password: String? = null
+
     @Input
     var reload: Boolean = true
     @Input

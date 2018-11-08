@@ -27,11 +27,11 @@ class FileDeployer(
 ) {
     fun deploy() {
         println("deploy(): " + this)
-        checkHostDns()
-        checkSocket()
+        checkHostDns(host)
+        checkSocket(host, port)
         CLI.newInstance().let { cli ->
             println("wildfly connect with $user on $host:$port")
-            connect(cli)
+            connect(cli, host, port, user, password)
             val force = if (force) {
                 "--force"
             } else {
@@ -98,7 +98,6 @@ class FileDeployer(
         if (awaitRestart) {
             blockTillCliIsBack()
         }
-
     }
 
     fun blockTillCliIsBack() {
@@ -126,28 +125,6 @@ class FileDeployer(
         }
     }
 
-    private fun connect(cli: CLI) {
-        cli.connect(host, port, user, password?.toCharArray())
-    }
-
-    private fun checkHostDns() {
-        println("$host DNS: ${InetAddress.getAllByName(host).joinToString(";")}")
-    }
-
-    private fun checkSocket() {
-        Socket().use {
-            try {
-                it.connect(InetSocketAddress(host, port), 2000)
-                it.close()
-                println("socket connect worked")
-            } catch (e: Exception) {
-                println("looks like we can't connect?!")
-                println("${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
-
     /**
      * hacky as hell but works
      */
@@ -156,7 +133,7 @@ class FileDeployer(
         while (LocalDateTime.now().isBefore(end)) {
             val cli = CLI.newInstance()
             try {
-                connect(cli)
+                connect(cli, host, port, user, password)
                 val cmd = cli.cmd(s)
                 if (cmd.isSuccess.not()) {
                     throw IllegalStateException("no success")
@@ -191,5 +168,32 @@ class FileDeployer(
     override fun toString(): String {
         return "FileDeployer(file=$file, host='$host', port=$port, user=$user, reload=$reload, force=$force, name=$name, runtimeName=$runtimeName, awaitReload=$awaitReload)"
     }
+}
 
+fun connect(
+    cli: CLI,
+    host: String,
+    port: Int,
+    user: String?,
+    password: String?
+) {
+    cli.connect(host, port, user, password?.toCharArray())
+}
+
+fun checkHostDns(host: String) {
+    println("$host DNS: ${InetAddress.getAllByName(host).joinToString(";")}")
+}
+
+fun checkSocket(host: String, port: Int) {
+    Socket().use {
+        try {
+            it.connect(InetSocketAddress(host, port), 2000)
+            it.close()
+            println("socket connect worked")
+        } catch (e: Exception) {
+            println("looks like we can't connect?!")
+            println("${e.message}")
+            e.printStackTrace()
+        }
+    }
 }
