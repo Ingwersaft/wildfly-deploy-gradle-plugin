@@ -30,6 +30,7 @@ open class DeployWildflyTask : DefaultTask() {
     var user: String? = null
     @Input
     var password: String? = null
+
     @Input
     var reload: Boolean = true
     @Input
@@ -37,6 +38,14 @@ open class DeployWildflyTask : DefaultTask() {
 
     @Input
     var awaitReload: Boolean = false
+
+    @Input
+    var undeployBeforehand: Boolean = false
+
+    @Input
+    var restart: Boolean = false
+    @Input
+    var awaitRestart: Boolean = false
 
     init {
         group = "help"
@@ -51,7 +60,40 @@ open class DeployWildflyTask : DefaultTask() {
             println("DeployWildflyTask: missing configuration")
             return
         }
+        if (reload && restart) {
+            println("reload && restart are mutually exclusive!")
+            return
+        }
+        if (awaitReload && awaitRestart) {
+            println("awaitReload && awaitRestart are mutually exclusive!")
+            return
+        }
+        if (awaitReload && reload.not()) {
+            println("awaitReload is pointless if no reload is set")
+        }
+        if (awaitRestart && restart.not()) {
+            println("awaitRestart is pointless if no restart is set")
+        }
         println("deployWildfly: going to deploy $file to $host:$port")
-        FileDeployer(file, host, port, user, password, reload, force, deploymentName, runtimeName, awaitReload).deploy()
+        try {
+            FileDeployer(
+                file,
+                host,
+                port,
+                user,
+                password,
+                reload,
+                force,
+                deploymentName,
+                runtimeName,
+                awaitReload,
+                undeployBeforehand,
+                restart,
+                awaitRestart
+            ).deploy()
+        } catch (e: Exception) {
+            println("deployWildfly task failed: ${e.message}")
+            e.printStackTrace()
+        }
     }
 }

@@ -17,3 +17,4 @@ gradle-app.setting
 *.iml
 **/Debug.kt
 **/DeleteMe.kt
+/example-platforms/
