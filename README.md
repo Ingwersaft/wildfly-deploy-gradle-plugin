@@ -3,6 +3,12 @@ Gradle Plugin for deploying Files to Wildfly
 
 :exclamation: Plugin needs some tests for productive use, keep in mind :)
 
+***Compatibility:***
+```
+Successfully tested/known to work: Wildfly 10, Wildfly 14
+Jboss7: Use <version>-jboss7
+```
+
 ## basic example (gradle kotlin-dsl)
 Add deploy-wildfly-plugin to plugins:
 ```kotlin
