@@ -92,7 +92,7 @@ task deploy(type: DeployWildflyTask) {
     deploymentName = project.name
     runtimeName = project.name + "-" + version + ".war"
     // filepath, here a war example
-    file = file("${buildDir}/libs/${project.name}-${version}.war")
+    file = "${buildDir}/libs/${project.name}-${version}.war"
 }
 ```
 ## gradle kotlin example
