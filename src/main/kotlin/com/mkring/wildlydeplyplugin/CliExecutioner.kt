@@ -21,9 +21,9 @@ object CliExecutioner {
                 println("going to execute `$it`")
                 val result = cli.cmd(it)
                 println("result: ${result.isSuccess}")
-                result.response.get("result").asString().let {
+                result.response?.get("result")?.asString()?.let {
                     println("result string:\n$it")
-                }
+                } ?: run { println("response null") }
             }
 
             cli.disconnect()
