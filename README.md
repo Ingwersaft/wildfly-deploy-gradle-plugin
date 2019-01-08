@@ -189,9 +189,6 @@ task executeCommands(type: ExecuteWildflyTask) {
     port = 9990
     user = "testuser"
     password = "1234"
-    // filepath, here a war example
-    println new File('config.cli').text
-//    commands = new File('config.cli').readLines().findAll { !it.isEmpty() }.collect()
     commands = ["ls"]
 }
 ```
