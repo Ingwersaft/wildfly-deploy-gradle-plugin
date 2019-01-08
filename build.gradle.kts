@@ -32,7 +32,6 @@ gradlePlugin {
     }
 }
 
-
 pluginBundle {
     website = "https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin"
     vcsUrl = "https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin"
