@@ -19,11 +19,15 @@ object CliExecutioner {
 
             commands.forEach {
                 println("going to execute `$it`")
-                val result = cli.cmd(it)
-                println("result: ${result.isSuccess}")
-                result.response?.get("result")?.asString()?.let {
-                    println("result string:\n$it")
-                } ?: run { println("response null") }
+                val result: CLI.Result? = cli.cmd(it)
+                println("result: ${result?.isSuccess}")
+                try {
+                    result?.response?.get("result")?.asString()?.let {
+                        println("result string:\n$it")
+                    } ?: run { println("result or response null") }
+                } catch (e: Exception) {
+                    println("cmd might have failed: ${e.message}")
+                }
             }
 
             cli.disconnect()
