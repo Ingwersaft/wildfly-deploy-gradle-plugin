@@ -1,10 +1,5 @@
-import org.gradle.kotlin.dsl.`kotlin-dsl`
-import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.kotlin
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformJvmPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 
 group = "com.mkring.wildlydeplyplugin"
 version = "0.2.10"
