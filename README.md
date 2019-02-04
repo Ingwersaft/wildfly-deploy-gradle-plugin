@@ -3,6 +3,12 @@ Gradle Plugin for deploying Files to Wildfly
 
 :exclamation: Plugin needs some tests for productive use, keep in mind :)
 
+***Compatibility:***
+```
+Successfully tested/known to work: Wildfly 10, Wildfly 14
+Jboss7: Use <version>-jboss7
+```
+
 ## basic example (gradle kotlin-dsl)
 Add deploy-wildfly-plugin to plugins:
 ```kotlin
@@ -86,7 +92,7 @@ task deploy(type: DeployWildflyTask) {
     deploymentName = project.name
     runtimeName = project.name + "-" + version + ".war"
     // filepath, here a war example
-    file = file("${buildDir}/libs/${project.name}-${version}.war")
+    file = "${buildDir}/libs/${project.name}-${version}.war"
 }
 ```
 ## gradle kotlin example
@@ -156,3 +162,57 @@ task("wildflyExecute", ExecuteWildflyTask::class) {
 }
 
 ```
+
+# Build and use locally build wildfly-deploy-gradle-plugin
+Building and publishing can be done with:
+```bash
+$ ./gradlew clean build publish
+```
+
+This will deploy the locally build plugin jar into your local maven repo and also into `build/lib`.
+
+To use your locally build plugin you can just 
+[override the plugin resolutionStrategy](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules)
+inside your settings.gradle(.kts) file.
+
+## example
+build.gradle:
+```groovy
+import com.mkring.wildlydeplyplugin.ExecuteWildflyTask
+
+plugins {
+    id("java")
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.8"
+}
+task executeCommands(type: ExecuteWildflyTask) {
+    host = "localhost"
+    port = 9990
+    user = "testuser"
+    password = "1234"
+    commands = ["ls"]
+}
+```
+settings.gradle:
+```groovy
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") {
+                useModule("com.mkring.wildlydeplyplugin:wildfly-deploy-gradle-plugin:0.2.9") //adapt version if needed
+            }
+        }
+    }
+    repositories {
+        maven {
+            // this is the build folder of your local wildfly-deploy-gradle-plugin repository, you might need to adapt this
+            url = uri("build/lib") 
+        }
+        // or
+        mavenLocal()
+
+        //
+        gradlePluginPortal()
+    }
+}
+```
+
