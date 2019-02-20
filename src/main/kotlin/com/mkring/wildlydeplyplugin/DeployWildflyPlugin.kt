@@ -5,14 +5,17 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.slf4j.LoggerFactory
 
 open class DeployWildflyPlugin : Plugin<Project> {
+    val log = LoggerFactory.getLogger(DeployWildflyPlugin::class.java)
     override fun apply(project: Project) {
-        println("DeployWildflyPlugin applied")
+        log.debug("DeployWildflyPlugin applied")
     }
 }
 
 open class DeployWildflyTask : DefaultTask() {
+    val log = LoggerFactory.getLogger(DeployWildflyTask::class.java)
 
     @Input
     var file: String? = null
@@ -57,24 +60,24 @@ open class DeployWildflyTask : DefaultTask() {
     @TaskAction
     fun deployWildfly() {
         if (file == null || user == null || password == null) {
-            println("DeployWildflyTask: missing configuration")
+            log.error("DeployWildflyTask: missing configuration")
             return
         }
         if (reload && restart) {
-            println("reload && restart are mutually exclusive!")
+            log.error("reload && restart are mutually exclusive!")
             return
         }
         if (awaitReload && awaitRestart) {
-            println("awaitReload && awaitRestart are mutually exclusive!")
+            log.error("awaitReload && awaitRestart are mutually exclusive!")
             return
         }
         if (awaitReload && reload.not()) {
-            println("awaitReload is pointless if no reload is set")
+            log.warn("awaitReload is pointless if no reload is set")
         }
         if (awaitRestart && restart.not()) {
-            println("awaitRestart is pointless if no restart is set")
+            log.warn("awaitRestart is pointless if no restart is set")
         }
-        println("deployWildfly: going to deploy $file to $host:$port")
+        log.info("deployWildfly: going to deploy $file to $host:$port")
         try {
             FileDeployer(
                 file,
@@ -92,8 +95,8 @@ open class DeployWildflyTask : DefaultTask() {
                 awaitRestart
             ).deploy()
         } catch (e: Exception) {
-            println("deployWildfly task failed: ${e.message}")
-            e.printStackTrace()
+            log.error("deployWildfly task failed: ${e.message}", e)
+            throw e
         }
     }
 }
