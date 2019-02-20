@@ -3,12 +3,15 @@ package com.mkring.wildlydeplyplugin
 import org.jboss.`as`.cli.CommandLineException
 import org.jboss.`as`.cli.scriptsupport.CLI
 import org.jboss.dmr.ModelNode
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+
+private val log = LoggerFactory.getLogger(FileDeployer::class.java)
 
 class FileDeployer(
     private val file: String?,
@@ -25,12 +28,13 @@ class FileDeployer(
     private val restart: Boolean,
     private val awaitRestart: Boolean
 ) {
+
     fun deploy() {
-        println("deploy(): " + this)
+        log.debug("deploy(): " + this)
         checkHostDns(host)
         checkSocket(host, port)
         CLI.newInstance().let { cli ->
-            println("wildfly connect with $user on $host:$port")
+            log.debug("wildfly connect with $user on $host:$port")
             connect(cli, host, port, user, password)
             val force = if (force) {
                 "--force"
@@ -47,17 +51,17 @@ class FileDeployer(
             } else {
                 ""
             }
-            println("connected successfully")
+            log.debug("connected successfully")
             val deploymentExists = File(file).isFile
-            println("given $file existent: $deploymentExists")
+            log.debug("given $file existent: $deploymentExists")
             if (deploymentExists.not()) throw IllegalStateException("couldn't find given deployment")
 
             if (undeployBeforehand) {
-                println("\nundeploying existing deployment with same name if preset...")
+                log.debug("\nundeploying existing deployment with same name if preset...")
                 val shouldUndeploy =
                     blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.get("result").asList()
                         .any { it.asProperty().name == name.removePrefix("--name=") }
-                println("shouldUndeploy=$shouldUndeploy")
+                log.debug("shouldUndeploy=$shouldUndeploy")
                 if (shouldUndeploy) {
                     blockingCmd("undeploy $name", 2, ChronoUnit.MINUTES).response.also {
                         println("undeploy response: $it\n")
@@ -67,26 +71,26 @@ class FileDeployer(
 
             // deploy
             val deploySuccess = cli.cmd("deploy $force $name $runtimeName $file").isSuccess
-            println("deploy success: $deploySuccess")
+            log.debug("deploy success: $deploySuccess")
 
             enableDeploymentIfNecessary(name)
 
             if (reload) {
                 try {
-                    println("going to reload wildfly")
+                    log.debug("going to reload wildfly")
                     val reloadSuccess = cli.cmd("reload").isSuccess
-                    println("reload success: $reloadSuccess")
+                    log.debug("reload success: $reloadSuccess")
                 } catch (e: CommandLineException) {
-                    println("looks like reload timed out: ${e.message}")
+                    log.debug("looks like reload timed out: ${e.message}")
                 }
             }
             if (restart) {
                 try {
-                    println("going to restart wildfly")
+                    log.debug("going to restart wildfly")
                     val restartSuccess = cli.cmd("shutdown --restart=true").isSuccess
-                    println("restart success: $restartSuccess")
+                    log.debug("restart success: $restartSuccess")
                 } catch (e: CommandLineException) {
-                    println("looks like restart timed out: ${e.message}")
+                    log.debug("looks like restart timed out: ${e.message}")
                 }
             }
             cli.disconnect()
@@ -101,15 +105,15 @@ class FileDeployer(
     }
 
     fun blockTillCliIsBack() {
-        println("going to block until the reload/restart finished...\n")
+        log.debug("going to block until the reload/restart finished...\n")
         Thread.sleep(1000)
         val postReloadDeploymentInfoPrettyPrint =
             blockingCmd("deployment-info", 1, ChronoUnit.MINUTES).response.responsePrettyPrint()
-        println("\n\nPOST reload/restart deployment info:\n$postReloadDeploymentInfoPrettyPrint")
+        log.debug("\n\nPOST reload/restart deployment info:\n$postReloadDeploymentInfoPrettyPrint")
     }
 
     private fun enableDeploymentIfNecessary(name: String) {
-        println("\nchecking if deployment is enabled...")
+        log.debug("\nchecking if deployment is enabled...")
         val deploymentEnabled =
             blockingCmd("deployment-info", 2, ChronoUnit.MINUTES).response.get("result").asList().map {
                 it.asProperty().name to it.getParam("enabled").removePrefix("enabled: ")
@@ -118,9 +122,9 @@ class FileDeployer(
             }?.second?.toBoolean()
 
         if (deploymentEnabled == false) {
-            println("not enabled! going to enable now!")
+            log.debug("not enabled! going to enable now!")
             blockingCmd("deploy $name", 2, ChronoUnit.MINUTES).response.also {
-                println("enable response: $it\n")
+                log.debug("enable response: $it\n")
             }
         }
     }
@@ -140,14 +144,14 @@ class FileDeployer(
                 }
                 return cmd
             } catch (e: Exception) {
-                println("connect + cmd exception: ${e::class.java.simpleName}:${e.message}")
+                log.debug("connect + cmd exception: ${e::class.java.simpleName}:${e.message}")
                 Thread.sleep(500)
                 continue
             } finally {
                 try {
                     cli.disconnect()
                 } catch (e: Exception) {
-                    println("disconnect exception: ${e::class.java.simpleName}:${e.message}")
+                    log.debug("disconnect exception: ${e::class.java.simpleName}:${e.message}")
                     throw e
                 }
             }
@@ -181,7 +185,7 @@ fun connect(
 }
 
 fun checkHostDns(host: String) {
-    println("$host DNS: ${InetAddress.getAllByName(host).joinToString(";")}")
+    log.debug("$host DNS: ${InetAddress.getAllByName(host).joinToString(";")}")
 }
 
 fun checkSocket(host: String, port: Int) {
@@ -189,11 +193,10 @@ fun checkSocket(host: String, port: Int) {
         try {
             it.connect(InetSocketAddress(host, port), 2000)
             it.close()
-            println("socket connect worked")
+            log.debug("socket connect worked")
         } catch (e: Exception) {
-            println("looks like we can't connect?!")
-            println("${e.message}")
-            e.printStackTrace()
+            log.debug("looks like we can't connect?!")
+            log.debug("${e.message}")
         }
     }
 }

@@ -3,8 +3,10 @@ package com.mkring.wildlydeplyplugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.slf4j.LoggerFactory
 
 open class ExecuteWildflyTask : DefaultTask() {
+    val log = LoggerFactory.getLogger(ExecuteWildflyTask::class.java)
     @Input
     var host: String = "localhost"
     @Input
@@ -26,18 +28,18 @@ open class ExecuteWildflyTask : DefaultTask() {
     @TaskAction
     fun executeWildfly() {
         if (user == null || password == null || commands == null || commands?.isEmpty() == true) {
-            println("ExecuteWildflyTask: missing configuration")
+            log.error("ExecuteWildflyTask: missing configuration")
             return
         }
-        println("ExecuteWildflyTask: on $host:$port going to execute:")
+        log.info("ExecuteWildflyTask: on $host:$port going to execute:")
         commands?.forEach {
-            println("`$it`")
+            log.debug("command: `$it`")
         }
         try {
             CliExecutioner.execute(host, port, user, password, commands ?: emptyList())
         } catch (e: Exception) {
-            println("ExecuteWildflyTask task failed: ${e.message}")
-            e.printStackTrace()
+            log.error("ExecuteWildflyTask task failed: ${e.message}", e)
+            throw e
         }
     }
 }
