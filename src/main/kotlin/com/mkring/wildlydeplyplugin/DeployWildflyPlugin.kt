@@ -21,6 +21,9 @@ open class DeployWildflyTask : DefaultTask() {
     var file: String? = null
 
     @Input
+    var domainServerGroup: String = ""
+
+    @Input
     var deploymentName: String? = null
     @Input
     var runtimeName: String? = null
@@ -89,6 +92,7 @@ open class DeployWildflyTask : DefaultTask() {
                 force,
                 deploymentName,
                 runtimeName,
+                domainServerGroup,
                 awaitReload,
                 undeployBeforehand,
                 restart,
