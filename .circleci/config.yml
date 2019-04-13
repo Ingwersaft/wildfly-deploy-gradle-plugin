@@ -29,7 +29,7 @@ jobs:
       - image: circleci/openjdk:8-jdk
       - image: jboss/wildfly:16.0.0.Final
         command: /opt/jboss/wildfly/bin/standalone.sh -bmanagement 0.0.0.0
-      - steps:
+      steps:
           - checkout
           - run: ps -a
 workflows:
