@@ -11,8 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "build.gradle" }}
-            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-{{ checksum "build.gradle.kts" }}
             - v1-dependencies-
 
       - run: ./gradlew dependencies
@@ -20,7 +19,8 @@ jobs:
       - save_cache:
         paths:
           - ~/.gradle
-        key: v1-dependencies-{{ checksum "build.gradle" }}
+        key: v1-dependencies-{{ checksum "build.gradle.kts" }}
+
       - run: ./gradlew build
 
       - run: ./gradlew publishToMavenLocal
