@@ -10,9 +10,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.gradle.kts" }}
-            - v1-dependencies-
+        keys:
+          - v1-dependencies-{{ checksum "build.gradle.kts" }}
+          - v1-dependencies-
 
       - run: ./gradlew dependencies
 
