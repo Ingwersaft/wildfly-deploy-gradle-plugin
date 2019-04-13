@@ -31,10 +31,12 @@ jobs:
         command: /opt/jboss/wildfly/bin/standalone.sh -bmanagement 0.0.0.0
     steps:
       - checkout
-      - run: ps -a
+      - run: curl localhost:9990/console/index.html
 workflows:
   version: 2
   all:
     jobs:
       - build
-      - wildfly
+      - wildfly:
+          requires:
+            - build
