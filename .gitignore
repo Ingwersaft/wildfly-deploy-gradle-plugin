@@ -18,3 +18,4 @@ gradle-app.setting
 **/Debug.kt
 **/DeleteMe.kt
 /example-platforms/
+integration/build.id

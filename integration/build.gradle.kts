@@ -1,4 +1,5 @@
 import com.mkring.wildlydeplyplugin.DeployWildflyTask
+import org.gradle.internal.id.UUIDGenerator
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -24,6 +25,17 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+task("build-id") {
+    doFirst {
+        File("build.id").apply {
+            createNewFile()
+            val id = UUIDGenerator().generateId().toString()
+            println("buildId=$id")
+            writeText(id)
+        }
+    }
+    outputs.doNotCacheIf("always generate new id") { true }
+}
 task("deploy", DeployWildflyTask::class) {
     host = "localhost"
     port = 9990
@@ -32,5 +44,11 @@ task("deploy", DeployWildflyTask::class) {
     deploymentName = project.name
     runtimeName = "${project.name}-$version.war"
     file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
-    dependsOn("build", "war")
+    reload = false
+    dependsOn("build-id", "build", "war")
+}
+tasks.war {
+    webInf {
+        from("build.id")
+    }
 }
