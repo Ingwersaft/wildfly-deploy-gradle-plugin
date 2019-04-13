@@ -30,7 +30,7 @@ class FileDeployer(
 ) {
 
     fun deploy() {
-        log.debug("deploy(): " + this)
+        log.debug("deploy(): $this")
         checkHostDns(host)
         checkSocket(host, port)
         CLI.newInstance().let { cli ->
