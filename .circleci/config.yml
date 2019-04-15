@@ -21,7 +21,7 @@ jobs:
       - checkout
       - run: ps aux
       - run: sudo apt install nmap -y
-      - run: nmap -v -A localhost
+      - run: nmap -tulpen
       - run: curl localhost:9990/console/index.html
 workflows:
   version: 2
