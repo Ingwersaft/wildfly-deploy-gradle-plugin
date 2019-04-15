@@ -15,10 +15,9 @@ jobs:
   wildfly:
     docker:
       - image: circleci/openjdk:8-jdk
-      - image: jboss/wildfly:16.0.0.Final
-        command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
     steps:
       - checkout
+      - run: docker run --name wildfly --rm -d -P -p 9990:9990 jboss/wildfly:16.0.0.Final /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
       - run: sleep 10
       - run: ps aux
       - run: sudo apt install nmap -y
