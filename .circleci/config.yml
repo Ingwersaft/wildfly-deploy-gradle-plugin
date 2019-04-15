@@ -19,10 +19,16 @@ jobs:
         command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
     steps:
       - checkout
+      - run: sleep 10
       - run: ps aux
       - run: sudo apt install nmap -y
-      - run: nmap -tulpen
-      - run: curl localhost:9990/console/index.html
+      - run: nmap -v -A localhost
+      - run: |
+          ./gradlew build
+          cd integration
+          ./gradlew deploy
+          sleep 10
+          curl http://localhost:8080/integration-1/rest/id
 workflows:
   version: 2
   all:
