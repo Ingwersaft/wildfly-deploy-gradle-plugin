@@ -20,6 +20,8 @@ jobs:
     steps:
       - checkout
       - run: ps aux
+      - run: sudo apt install nmap -y
+      - run: nmap -v -A localhost
       - run: curl localhost:9990/console/index.html
 workflows:
   version: 2
