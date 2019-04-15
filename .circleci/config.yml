@@ -16,16 +16,14 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: docker run --name wildfly --rm -d -P -p 9990:9990 jboss/wildfly:16.0.0.Final /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
+      - run: docker run --name wildfly --rm -d -p 8080:8080 -p 9990:9990 jboss/wildfly:16.0.0.Final /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
       - run: sleep 10
       - run: docker exec wildfly /opt/jboss/wildfly/bin/add-user.sh mgmt 1234
       - run: ps aux
-      - run: sudo apt install nmap -y
-      - run: nmap -v -A localhost
       - run: |
           ./gradlew build publishToMavenLocal
           cd integration
-          ./gradlew clean deploy --no-build-cache && echo "build.id:" && cat build.id && echo && echo "curl:" && curl localhost:8080/integration-1/rest/id && echo
+          ./gradlew clean deploy --no-build-cache --info && echo "build.id:" && cat build.id && echo && echo "curl:" && curl localhost:8080/integration-1/rest/id && echo
           sleep 10
           curl http://localhost:8080/integration-1/rest/id
 workflows:
