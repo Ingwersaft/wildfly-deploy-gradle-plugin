@@ -26,16 +26,15 @@ tasks.withType<KotlinCompile> {
 }
 
 task("build-id") {
-    doFirst {
-        File("build.id").apply {
-            createNewFile()
-            val id = UUIDGenerator().generateId().toString()
-            println("buildId=$id")
-            writeText(id)
-        }
+    File("build.id").apply {
+        createNewFile()
+        val id = UUIDGenerator().generateId().toString()
+        println("buildId=$id")
+        writeText(id)
     }
     outputs.doNotCacheIf("always generate new id") { true }
 }
+tasks.findByPath("build")?.outputs?.cacheIf { false }
 task("deploy", DeployWildflyTask::class) {
     host = "localhost"
     port = 9990

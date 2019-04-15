@@ -13,8 +13,7 @@ jobs:
       - run: ./gradlew build
       - run: ./gradlew publishToMavenLocal
   wildfly:
-    docker:
-      - image: circleci/openjdk:8-jdk
+    machine: true
     steps:
       - checkout
       - run: docker run --name wildfly --rm -d -P -p 9990:9990 jboss/wildfly:16.0.0.Final /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
@@ -23,9 +22,9 @@ jobs:
       - run: sudo apt install nmap -y
       - run: nmap -v -A localhost
       - run: |
-          ./gradlew build
+          ./gradlew build publishToMavenLocal
           cd integration
-          ./gradlew deploy
+          ./gradlew clean deploy --no-build-cache && echo "build.id:" && cat build.id && echo && echo "curl:" && curl localhost:8080/integration-1/rest/id && echo
           sleep 10
           curl http://localhost:8080/integration-1/rest/id
 workflows:
