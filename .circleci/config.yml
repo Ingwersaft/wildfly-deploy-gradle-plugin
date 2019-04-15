@@ -19,7 +19,7 @@ jobs:
         command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
     steps:
       - checkout
-      - ps aux
+      - run: ps aux
       - run: curl localhost:9990/console/index.html
 workflows:
   version: 2
