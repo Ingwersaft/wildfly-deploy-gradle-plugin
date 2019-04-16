@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    steps:
+      - checkout
+      - run: ./gradlew dependencies
+      - run: ./gradlew build
+      - run: ./gradlew publishToMavenLocal
+  wildfly:
+    machine: true
+    steps:
+      - checkout
+      - run: docker run --name wildfly --rm -d -p 8080:8080 -p 9990:9990 jboss/wildfly:16.0.0.Final /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0
+      - run: sleep 10
+      - run: docker exec wildfly /opt/jboss/wildfly/bin/add-user.sh mgmt 1234
+      - run: ps aux
+      - run: |
+          ./gradlew build publishToMavenLocal
+          cd integration
+          ./gradlew clean deploy verify --no-build-cache --info && echo "build.id:" && cat build.id && echo && echo "curl:" && curl localhost:8080/integration-1/rest/id && echo
+          sleep 10
+          ./gradlew
+workflows:
+  version: 2
+  all:
+    jobs:
+      - build
+      - wildfly:
+          requires:
+            - build
