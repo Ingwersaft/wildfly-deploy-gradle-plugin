@@ -56,7 +56,7 @@ task("deploy") {
 
 You can also undeploy an existing deployment with the identical name beforehand
 ```kotlin
-undeployBeforehand = true
+    undeployBeforehand = true
 ```
 
 You can also restart the wildfly after the deployment (and await it), analogous to the reload mechanism
@@ -66,13 +66,18 @@ You can also restart the wildfly after the deployment (and await it), analogous 
     awaitRestart = true 
 ```
 
+You can also deploy to WildFly in domain mode, but only one server group per task
+```kotlin
+    domainServerGroup = "main-server-group"
+```
+
 ## gradle groovy example
 ```
 import com.mkring.wildlydeplyplugin.DeployWildflyTask
 
 plugins {
     id("java")
-    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.7"
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.10"
 }
 
 group = "x.y"
@@ -96,6 +101,23 @@ task deploy(type: DeployWildflyTask) {
     // filepath, here a war example
     file = "${buildDir}/libs/${project.name}-${version}.war"
 }
+
+task deployDomain(type: DeployWildflyTask) {
+    host = deploy.host
+    port = deploy.port
+    user = deploy.user
+    password = deploy.password
+    deploymentName = project.name
+    runtimeName = "${project.name}-${project.version}.war"
+    file = "$buildDir/libs/${project.name}-${project.version}.war"
+    // redeploy if artifact with same name already deployed
+    undeployBeforehand = true
+    // server group of domain mode
+    domainServerGroup = "main-server-group"
+    // ask to restart servers after deploy instead of only reload them
+    restart = true 
+    reload = false
+}
 ```
 ## gradle kotlin example
 ```
@@ -103,7 +125,7 @@ import com.mkring.wildlydeplyplugin.DeployWildflyTask
 
 plugins {
     java
-    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.7"
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.10"
 }
 
 group = "x.y"
