@@ -44,6 +44,7 @@ class FileDeployer(
             "deploy"
         }
     }
+    private val enableDeploymentCmd = deployCmd.replace("--force","")
     private val undeployCmd : String = if (domainMode) {
         "undeploy --server-groups=$domainServerGroup"
     } else {
@@ -159,7 +160,7 @@ class FileDeployer(
 
         if (deploymentEnabled == false) {
             log.debug("not enabled! going to enable now!")
-            blockingCmd("$deployCmd $name", 2, ChronoUnit.MINUTES).response.also {
+            blockingCmd("$enableDeploymentCmd $name", 2, ChronoUnit.MINUTES).response.also {
                 log.debug("enable response: $it\n")
             }
         }
@@ -174,6 +175,7 @@ class FileDeployer(
             val cli = CLI.newInstance()
             try {
                 connect(cli, host, port, user, password)
+                log.debug("executing cmd: $s")
                 val cmd = cli.cmd(s)
                 if (cmd.isSuccess.not()) {
                     throw IllegalStateException("no success")
