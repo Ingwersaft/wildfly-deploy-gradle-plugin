@@ -56,7 +56,6 @@ open class DeployWildflyTask : DefaultTask() {
     init {
         group = "help"
         description = "Deploys files to a Wildfly und reloads it afterwards"
-        dependsOn("build")
         outputs.upToDateWhen { false }
     }
 
