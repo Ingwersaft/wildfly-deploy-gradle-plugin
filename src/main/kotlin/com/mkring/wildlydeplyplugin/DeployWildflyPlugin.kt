@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
@@ -26,9 +27,10 @@ open class DeployWildflyTask : DefaultTask() {
     var domainServerGroup: String = ""
 
     @Input
-    var deploymentName: String? = null
+    val deploymentName: Property<String> = project.objects.property(String::class.java)
+
     @Input
-    var runtimeName: String? = null
+    val runtimeName: Property<String> = project.objects.property(String::class.java)
 
     @Input
     var host: String = "localhost"
@@ -91,8 +93,8 @@ open class DeployWildflyTask : DefaultTask() {
                 password,
                 reload,
                 force,
-                deploymentName,
-                runtimeName,
+                deploymentName.get(),
+                runtimeName.get(),
                 domainServerGroup,
                 awaitReload,
                 undeployBeforehand,
