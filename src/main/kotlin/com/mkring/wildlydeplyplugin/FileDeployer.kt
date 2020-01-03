@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit
 private val log = LoggerFactory.getLogger(FileDeployer::class.java)
 
 class FileDeployer(
-    private val file: String?,
+    private val file: File,
     private val host: String,
     private val port: Int,
     private val user: String?,
@@ -82,7 +82,7 @@ class FileDeployer(
                 ""
             }
 
-            val deploymentExists = File(file).isFile
+            val deploymentExists = file.isFile
             log.debug("given $file existent: $deploymentExists")
             if (deploymentExists.not()) throw IllegalStateException("couldn't find given deployment")
 

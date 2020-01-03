@@ -3,7 +3,9 @@ package com.mkring.wildlydeplyplugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.slf4j.LoggerFactory
 
@@ -17,8 +19,8 @@ open class DeployWildflyPlugin : Plugin<Project> {
 open class DeployWildflyTask : DefaultTask() {
     val log = LoggerFactory.getLogger(DeployWildflyTask::class.java)
 
-    @Input
-    var file: String? = null
+    @InputFile
+    val file: RegularFileProperty = project.objects.fileProperty()
 
     @Input
     var domainServerGroup: String = ""
@@ -61,7 +63,7 @@ open class DeployWildflyTask : DefaultTask() {
 
     @TaskAction
     fun deployWildfly() {
-        if (file == null || user == null || password == null) {
+        if (file.get().asFile.name.isEmpty() || user == null || password == null) {
             log.error("DeployWildflyTask: missing configuration")
             return
         }
@@ -79,10 +81,10 @@ open class DeployWildflyTask : DefaultTask() {
         if (awaitRestart && restart.not()) {
             log.warn("awaitRestart is pointless if no restart is set")
         }
-        log.info("deployWildfly: going to deploy $file to $host:$port")
+        log.info("deployWildfly: going to deploy ${file.get().asFile} to $host:$port")
         try {
             FileDeployer(
-                file,
+                file.get().asFile,
                 host,
                 port,
                 user,
