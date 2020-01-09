@@ -64,13 +64,14 @@ task("deploy", DeployWildflyTask::class) {
     port = 9990
     user = "mgmt"
     password = "1234"
-    deploymentName = project.name
-    runtimeName = "${project.name}-$version.war"
-    file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
+    deploymentName.set(project.name)
+    runtimeName.set(tasks.war.get().archiveFileName)
+    // Using war.archiveFile will make the deploy task depend on the war task implicitly
+    file.set(tasks.war.get().archiveFile)
     reload = false
-    dependsOn("build-id", "build", "war")
 }
 tasks.war {
+    dependsOn("build-id")
     webInf {
         from("build.id")
     }
