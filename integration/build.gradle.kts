@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.21"
-    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.10"
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.12"
     war
 }
 buildscript {
