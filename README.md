@@ -63,7 +63,7 @@ You can also restart the wildfly after the deployment (and await it), analogous 
 ```kotlin
     reload = false // default for reload is true, so deactivate it first
     restart = true
-    awaitRestart = true 
+    awaitRestart = true
 ```
 
 You can also deploy to WildFly in domain mode, but only one server group per task
@@ -108,14 +108,14 @@ task deployDomain(type: DeployWildflyTask) {
     user = deploy.user
     password = deploy.password
     deploymentName = project.name
-    runtimeName = "${project.name}-${project.version}.war"
-    file = "$buildDir/libs/${project.name}-${project.version}.war"
+    runtimeName = tasks.war.archiveFileName
+    file = tasks.war.archiveFile
     // redeploy if artifact with same name already deployed
     undeployBeforehand = true
     // server group of domain mode
     domainServerGroup = "main-server-group"
     // ask to restart servers after deploy instead of only reload them
-    restart = true 
+    restart = true
     reload = false
 }
 ```
@@ -148,10 +148,10 @@ task("deploy", DeployWildflyTask::class) {
     port = 9090
     user = "mgmt_user"
     password = "mgmt_password"
-    deploymentName = project.name                //cli: --name=$runtimeName
-    runtimeName = "${project.name}-$version.war" //cli: --runtime-name=$runtimeName
-    // filepath, here a war example
-    file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
+    deploymentName.set(project.name)                 //cli: --name=$runtimeName
+    runtimeName.set(tasks.war.get().archiveFileName) //cli: --runtime-name=$runtimeName
+    // Using war.archiveFile will make the deploy task depend on the war task implicitly, no need for dependsOn("war")
+    file.set(tasks.war.get().archiveFile)
 }
 ```
 
@@ -195,7 +195,7 @@ $ ./gradlew clean build publish
 
 This will deploy the locally build plugin jar into your local maven repo and also into `build/lib`.
 
-To use your locally build plugin you can just 
+To use your locally build plugin you can just
 [override the plugin resolutionStrategy](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_resolution_rules)
 inside your settings.gradle(.kts) file.
 
@@ -229,7 +229,7 @@ pluginManagement {
     repositories {
         maven {
             // this is the build folder of your local wildfly-deploy-gradle-plugin repository, you might need to adapt this
-            url = uri("build/lib") 
+            url = uri("build/lib")
         }
         // or
         mavenLocal()
@@ -239,4 +239,3 @@ pluginManagement {
     }
 }
 ```
-
