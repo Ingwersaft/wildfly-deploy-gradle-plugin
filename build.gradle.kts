@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 
 group = "com.mkring.wildlydeplyplugin"
-version = "0.2.10-wildfly15"
+version = "0.3.0-wildfly15"
 
 plugins {
     kotlin("jvm") version "1.2.61"
