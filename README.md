@@ -11,6 +11,9 @@ Wildfly 15: Use <version>-wildfly15
 ```
 If you have problems using cli batches, try the `-wildfly15` branch (see: #12).
 
+Since version `0.3.0` the api changed slightly, please consule [Do not depend on build task, lazily resolve file #22](https://github.com/Ingwersaft/wildfly-deploy-gradle-plugin/pull/22) 
+if you need details.
+
 ## basic example (gradle kotlin-dsl)
 Add deploy-wildfly-plugin to plugins:
 ```kotlin
@@ -25,10 +28,10 @@ task("deploy", DeployWildflyTask::class) {
     port = 9090
     user = "mgmt_user"
     password = "mgmt_password"
-    deploymentName = project.name                //cli: --name=$runtimeName
-    runtimeName = "${project.name}-$version.war" //cli: --runtime-name=$runtimeName
+    deploymentName.set(project.name)                //cli: --name=$runtimeName
+    runtimeName.set(tasks.war.get().archiveFileName) //cli: --runtime-name=$runtimeName
     // filepath, here a war example
-    file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
+    file.set(tasks.war.get().archiveFile)
 }
 ```
 
