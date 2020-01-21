@@ -3,7 +3,10 @@ package com.mkring.wildlydeplyplugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.slf4j.LoggerFactory
 
@@ -17,16 +20,17 @@ open class DeployWildflyPlugin : Plugin<Project> {
 open class DeployWildflyTask : DefaultTask() {
     val log = LoggerFactory.getLogger(DeployWildflyTask::class.java)
 
-    @Input
-    var file: String? = null
+    @InputFile
+    val file: RegularFileProperty = project.objects.fileProperty()
 
     @Input
     var domainServerGroup: String = ""
 
     @Input
-    var deploymentName: String? = null
+    val deploymentName: Property<String> = project.objects.property(String::class.java)
+
     @Input
-    var runtimeName: String? = null
+    val runtimeName: Property<String> = project.objects.property(String::class.java)
 
     @Input
     var host: String = "localhost"
@@ -56,13 +60,12 @@ open class DeployWildflyTask : DefaultTask() {
     init {
         group = "help"
         description = "Deploys files to a Wildfly und reloads it afterwards"
-        dependsOn("build")
         outputs.upToDateWhen { false }
     }
 
     @TaskAction
     fun deployWildfly() {
-        if (file == null || user == null || password == null) {
+        if (file.get().asFile.name.isEmpty() || user == null || password == null) {
             log.error("DeployWildflyTask: missing configuration")
             return
         }
@@ -80,18 +83,18 @@ open class DeployWildflyTask : DefaultTask() {
         if (awaitRestart && restart.not()) {
             log.warn("awaitRestart is pointless if no restart is set")
         }
-        log.info("deployWildfly: going to deploy $file to $host:$port")
+        log.info("deployWildfly: going to deploy ${file.get().asFile} to $host:$port")
         try {
             FileDeployer(
-                file,
+                file.get().asFile,
                 host,
                 port,
                 user,
                 password,
                 reload,
                 force,
-                deploymentName,
-                runtimeName,
+                deploymentName.get(),
+                runtimeName.get(),
                 domainServerGroup,
                 awaitReload,
                 undeployBeforehand,

@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.21"
-    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.10"
+    id("com.mkring.wildlydeplyplugin.deploy-wildfly-plugin") version "0.2.12"
     war
 }
 buildscript {
@@ -64,13 +64,14 @@ task("deploy", DeployWildflyTask::class) {
     port = 9990
     user = "mgmt"
     password = "1234"
-    deploymentName = project.name
-    runtimeName = "${project.name}-$version.war"
-    file = "$buildDir/libs/${project.name}-$version.war".apply { println("file=$this") }
+    deploymentName.set(project.name)
+    runtimeName.set(tasks.war.get().archiveFileName)
+    // Using war.archiveFile will make the deploy task depend on the war task implicitly
+    file.set(tasks.war.get().archiveFile)
     reload = false
-    dependsOn("build-id", "build", "war")
 }
 tasks.war {
+    dependsOn("build-id")
     webInf {
         from("build.id")
     }

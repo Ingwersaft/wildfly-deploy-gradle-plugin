@@ -21,7 +21,6 @@ open class ExecuteWildflyTask : DefaultTask() {
     init {
         group = "help"
         description = "Executes cli commands on a Wildfly"
-        dependsOn("build")
         outputs.upToDateWhen { false }
     }
 
