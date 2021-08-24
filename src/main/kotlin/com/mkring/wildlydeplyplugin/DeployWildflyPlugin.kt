@@ -18,7 +18,7 @@ open class DeployWildflyPlugin : Plugin<Project> {
 }
 
 open class DeployWildflyTask : DefaultTask() {
-    @Internal
+    @internal
     val log = LoggerFactory.getLogger(DeployWildflyTask::class.java)
 
     @InputFile
