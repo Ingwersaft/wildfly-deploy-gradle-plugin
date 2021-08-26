@@ -18,8 +18,8 @@ open class DeployWildflyPlugin : Plugin<Project> {
 }
 
 open class DeployWildflyTask : DefaultTask() {
-    @internal
-    val log = LoggerFactory.getLogger(DeployWildflyTask::class.java)
+    
+    private val log = LoggerFactory.getLogger(DeployWildflyTask::class.java)
 
     @InputFile
     val file: RegularFileProperty = project.objects.fileProperty()
