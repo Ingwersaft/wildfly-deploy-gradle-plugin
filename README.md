@@ -1,6 +1,6 @@
 # :warning: wildfly-deploy-gradle-plugin is not maintained!
 
-This repository will be [archived] soon as I stopped working with java application server for some time now. Feel free [getting in touch](https://kesselring.io/#contactSection) if you need some hints :)
+This repository will be **archived** soon as I stopped working with java application server for some time now. Feel free forking the repo and [getting in touch](https://kesselring.io/#contactSection) if you need some hints :)
 
 # wildfly-deploy-gradle-plugin
 
